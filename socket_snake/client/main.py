@@ -9,9 +9,11 @@ import random
 from player import *
 
 
+HOST = "217.71.129.139"
+PORT = 4674
+
 HOST = "localhost"
 PORT = 1234
-
 
 class Game:
     def __init__(self):
@@ -62,7 +64,6 @@ class Game:
             msg = json.dumps({'id': response['id'], 'type': 'cheng_d', 'd': self.direction})
             s.sendall(bytes(msg, 'utf-8'))
         except Exception as e:
-            print(1)
             print(e)
 
     def update_all(self):
@@ -171,6 +172,14 @@ class Game:
             threading.Event().wait(max((1 / 60) - (time.time() - timer_fps), 0))
 
 
+def get_long_message(socket):
+    m = ''
+    length = int(socket.recv(1024).decode("utf-8"))
+    for i in range(length):
+        m += socket.recv(1024).decode("utf-8")
+    return m
+
+
 async def main():
     game = Game()
 
@@ -195,7 +204,7 @@ async def connect_to_server(HOST, PORT, game):
         s.sendall(bytes(json.dumps("con"), "utf-8"))
         while game.is_start:
             try:
-                message = s.recv(65536).decode("utf-8")
+                message = get_long_message(s)
             except Exception as e:
                 print(e)
             await game.on_message(s, message)

@@ -23,7 +23,7 @@ class Game:
 
     def echo(self, connection, addr):
         while True:
-            data = connection.recv(65536).decode("utf-8")
+            data = connection.recv(1024).decode("utf-8")
             try:
                 message = json.loads(data)
             except Exception as e:
@@ -34,7 +34,7 @@ class Game:
                 threading.Event().wait(self.speed - (time.time() - self.local_time))
 
                 self.init_player(connection)
-                self.give_player_info(connection, self.next_player_id)
+                # self.give_player_info(connection, self.next_player_id)
             elif 'type' in message:
                 if not self.get_data_player(message):
                     print('отсутствуют необходимые поля или такого пользователя нет')
@@ -74,7 +74,7 @@ class Game:
                 res['other_players'].append(p.get_json())
 
         try:
-            socket.send(bytes(json.dumps(res), encoding='UTF-8'))
+            send_long_message(socket, json.dumps(res))
             if player is not None:
                 player.count_reconnection = MAXCOUNTRECONNECTING
         except Exception as e:
@@ -144,6 +144,14 @@ class Game:
             threading.Event().wait(self.speed - (time.time() - self.local_time))
             self.local_time = time.time()
 
+
+def send_long_message(connection, m):
+    length = len(m) // 1024 + 1
+    connection.send(bytes(str(length), encoding='UTF-8'))
+    i = -1
+    for i in range(length - 1):
+        connection.send(bytes(m[i * 1024:(i+1) * 1024], encoding='UTF-8'))
+    connection.send(bytes(m[(i+1) * 1024:], encoding='UTF-8'))
 
 def start_server(game):
     print("First function...")
