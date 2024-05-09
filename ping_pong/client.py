@@ -1,13 +1,11 @@
-import socket, time
+import socket
 
-address_to_server = ('localhost', 8686)
+HOST = "localhost"
+PORT = 1234
 
-client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect(address_to_server)
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s.connect((HOST, PORT))
+    s.sendall(bytes("Hello, world", "utf-8"))
+    data = s.recv(1024).decode("utf-8")
 
-t = time.time()
-client.send(bytes("hello from client number ", encoding='UTF-8'))
-
-data = client.recv(1024)
-print(time.time() - t)
-print(str(data))
+print(f"Received {data}")

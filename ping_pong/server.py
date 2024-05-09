@@ -1,12 +1,11 @@
 import socket
 
-# Задаем адрес сервера
-SERVER_ADDRESS = ('localhost', 8686)
-SERVER_ADDRESS = (input('host? '), int(input('port? ')))
+HOST = "localhost"
+PORT = 1234
 
 # Настраиваем сокет
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_socket.bind(SERVER_ADDRESS)
+server_socket.bind((HOST, PORT))
 server_socket.listen(10)
 print('server is running, please, press ctrl+c to stop')
 
